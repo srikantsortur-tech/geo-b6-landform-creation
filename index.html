@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landform Classifier Quiz - Grade 9</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .question-card {
+            border: 2px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .question-card h2 {
+            margin-top: 0;
+            color: #e37400;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .option-btn {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s, transform 0.1s;
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            border: 1px solid #c9e2ff;
+        }
+        .option-btn:hover {
+            background-color: #c9e2ff;
+        }
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+        #feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            line-height: 1.6;
+        }
+        .feedback-correct {
+            background-color: #e6ffed;
+            color: #008744;
+            border: 1px solid #008744;
+        }
+        .feedback-incorrect {
+            background-color: #ffe6e6;
+            color: #d93025;
+            border: 1px solid #d93025;
+        }
+        #next-btn {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #008744;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏔️ Landform Classifier: Quiz for Grade 9</h1>
+    <div class="question-card" id="quiz-area">
+        <h2 id="landform-name"></h2>
+        <p id="question-text"></p>
+        <div class="options-grid" id="options-container">
+            </div>
+    </div>
+    <div id="feedback"></div>
+    <button id="next-btn" onclick="nextQuestion()">Next Landform &rarr;</button>
+    <p id="score">Score: 0 / 0</p>
+</div>
+
+<script>
+    const landforms = [
+        {
+            name: "V-Shaped Valley",
+            type: "Destructive",
+            question: "How is this landform primarily formed?",
+            mechanism: "Water Erosion (rivers cut down and erode the banks, leaving a V-shape).",
+            feedback: "Correct! The **V-Shaped Valley** is a classic **Destructive** feature, formed as a river's running water cuts **downward** into the rock, with materials falling from the bank and being carried away (**erosion**), creating the characteristic 'V' shape[cite: 1, 78]."
+        },
+        {
+            name: "Arete",
+            type: "Destructive",
+            question: "How is this landform primarily formed?",
+            mechanism: "Glacial Erosion (glaciers wear away two sides of a mountain peak).",
+            feedback: "Correct! An **Arete** is a **Destructive** landform, defined as a sharp ridge formed when **glaciers** on both sides of a mountain peak move and erode (wear away) the rock, essentially 'sharpening' the ridge[cite: 1, 77]."
+        },
+        {
+            name: "Sea Arch / Sea Stack",
+            type: "Destructive",
+            question: "How is this landform primarily formed?",
+            mechanism: "Wave Action (waves erode a headland into a cave, then arch, then stack).",
+            feedback: "Correct! The **Sea Arch/Stack** is created through **Destructive** wave action. Waves continuously erode a headland, starting with a crack, forming a cave, which breaks through to form an arch, and finally collapses to leave a freestanding stack[cite: 2, 79, 80]."
+        },
+        {
+            name: "Esker",
+            type: "Constructive",
+            question: "How is this landform primarily formed?",
+            mechanism: "Sediment Deposition (river beds inside melting glaciers leave behind a ridge of material).",
+            feedback: "Correct! An **Esker** is a **Constructive** feature. It's formed by **Sediment Deposition**; as a glacier melts, the material (rocks and debris) from the riverbed *inside* the glacier is laid down on the ground, creating a long, snake-like ridge[cite: 2, 81]."
+        },
+        {
+            name: "Kettle",
+            type: "Destructive",
+            question: "How is this landform primarily formed?",
+            mechanism: "Melting 'Dead Ice' (collapsed hole left by a buried chunk of ice melting).",
+            feedback: "Correct! A **Kettle** is a **Destructive** feature, formed when large pieces of 'dead ice' [cite: 6, 82] break off a glacier, get surrounded by outwash [cite: 6, 83], and then melt, causing the ground above to **collapse** and leave a crater-like pond[cite: 7, 82]."
+        },
+        {
+            name: "Moraine",
+            type: "Constructive",
+            question: "How is this landform primarily formed?",
+            mechanism: "Sediment Deposition (material pushed by or collected at the edges/front of a glacier).",
+            feedback: "Correct! A **Moraine** is a **Constructive** landform, formed by **Sediment Deposition**. It's the collection of rocks and dirt that a glacier has pushed or scrapped up, which remains as a ridge after the glacier melts or retreats[cite: 11, 12, 13, 84]."
+        }
+    ];
+
+    let currentLandformIndex = 0;
+    let quizState = 'type'; // 'type' for Constructive/Destructive, 'mechanism' for detailed question
+    let score = 0;
+    let totalAttempts = 0;
+    let shuffledLandforms = [];
+
+    // --- Core Functions ---
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function startGame() {
+        // Create a copy and shuffle
+        shuffledLandforms = [...landforms];
+        shuffleArray(shuffledLandforms);
+        currentLandformIndex = 0;
+        score = 0;
+        totalAttempts = 0;
+        updateScoreDisplay();
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentLandformIndex >= shuffledLandforms.length) {
+            // Quiz finished
+            document.getElementById('quiz-area').innerHTML = `
+                <h2>Quiz Complete!</h2>
+                <p>You scored ${score} out of ${totalAttempts} total attempts.</p>
+                <p>Great job solidifying your understanding of Landform Formation!</p>
+                <button class="option-btn" onclick="startGame()">Review Again</button>
+            `;
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            return;
+        }
+
+        const lf = shuffledLandforms[currentLandformIndex];
+        const nameEl = document.getElementById('landform-name');
+        const questionEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackEl = document.getElementById('feedback');
+        
+        // Reset state
+        feedbackEl.style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
+        optionsContainer.innerHTML = '';
+        
+        nameEl.textContent = lf.name;
+
+        if (quizState === 'type') {
+            // Phase 1: Constructive/Destructive Classification
+            questionEl.textContent = `Is the formation of a ${lf.name} a primarily **Constructive** (building up) or **Destructive** (tearing down) process?`;
+            
+            const typeOptions = ['Constructive', 'Destructive'];
+            shuffleArray(typeOptions);
+            
+            typeOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(option, lf.type);
+                optionsContainer.appendChild(btn);
+            });
+
+        } else if (quizState === 'mechanism') {
+            // Phase 2: Detailed Mechanism Recall
+            questionEl.textContent = `Which statement correctly describes the **formation mechanism** for a ${lf.name}?`;
+            
+            // Generate options: correct answer + two plausible distractors from other landforms
+            let allMechanisms = landforms.map(l => l.mechanism);
+            
+            // Filter out the correct mechanism and the mechanism for the current landform
+            let distractorPool = allMechanisms.filter(m => m !== lf.mechanism);
+            shuffleArray(distractorPool);
+            
+            let mechanismOptions = [lf.mechanism, distractorPool[0], distractorPool[1]].filter(m => m);
+            shuffleArray(mechanismOptions);
+
+            mechanismOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(option, lf.mechanism);
+                optionsContainer.appendChild(btn);
+            });
+        }
+    }
+
+    function checkAnswer(selected, correct) {
+        totalAttempts++;
+        const feedbackEl = document.getElementById('feedback');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const lf = shuffledLandforms[currentLandformIndex];
+
+        // Disable all buttons
+        Array.from(optionsContainer.children).forEach(btn => btn.disabled = true);
+
+        if (selected === correct) {
+            score++;
+            feedbackEl.className = 'feedback-correct';
+            if (quizState === 'type') {
+                feedbackEl.innerHTML = `**Correct!** ${lf.name} formation is a **${correct}** process. ${lf.type === 'Constructive' ? 'This involves the **building up** of land features.' : 'This involves the **breaking down** or **tearing down** of land.'} [cite: 37, 39]`;
+                nextBtn.textContent = "See Mechanism Question &rarr;";
+                nextBtn.onclick = () => { quizState = 'mechanism'; loadQuestion(); };
+            } else { // quizState === 'mechanism'
+                feedbackEl.innerHTML = `**Excellent!** ${lf.feedback}`;
+                nextBtn.textContent = "Next Landform &rarr;";
+                nextBtn.onclick = nextQuestion;
+            }
+        } else {
+            feedbackEl.className = 'feedback-incorrect';
+            if (quizState === 'type') {
+                const correctType = lf.type === 'Constructive' ? 'Constructive (building up)' : 'Destructive (tearing down)';
+                feedbackEl.innerHTML = `**Incorrect.** The formation of a **${lf.name}** is a **${correctType}** process. Remember: V-Shaped Valleys are **carved out** by water, so they are Destructive[cite: 1, 39].`;
+                nextBtn.textContent = "See Mechanism Question &rarr;";
+                nextBtn.onclick = () => { quizState = 'mechanism'; loadQuestion(); };
+            } else { // quizState === 'mechanism'
+                feedbackEl.innerHTML = `**Incorrect.** The correct mechanism is: **${correct}**. ${lf.feedback.replace('Correct! ', '')}`;
+                nextBtn.textContent = "Next Landform &rarr;";
+                nextBtn.onclick = nextQuestion;
+            }
+
+            // Highlight the correct answer
+            Array.from(optionsContainer.children).forEach(btn => {
+                if (btn.textContent === correct) {
+                    btn.style.border = '3px solid #008744';
+                    btn.style.backgroundColor = '#d1f7e0';
+                } else if (btn.textContent === selected) {
+                    btn.style.border = '3px solid #d93025';
+                    btn.style.backgroundColor = '#f7d1d1';
+                }
+            });
+        }
+
+        feedbackEl.style.display = 'block';
+        nextBtn.style.display = 'block';
+        updateScoreDisplay();
+    }
+
+    function nextQuestion() {
+        if (quizState === 'mechanism') {
+            currentLandformIndex++;
+            quizState = 'type'; // Reset to classification for the next landform
+        }
+        loadQuestion();
+    }
+
+    function updateScoreDisplay() {
+        document.getElementById('score').textContent = `Score: ${score} / ${totalAttempts}`;
+    }
+
+    // Initialize the game when the page loads
+    window.onload = startGame;
+</script>
+
+</body>
+</html>
