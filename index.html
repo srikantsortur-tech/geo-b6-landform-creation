@@ -165,6 +165,20 @@
             border-left: 5px solid #10b981;
             border-radius: 4px;
         }
+
+        /* NEW Diagnostic Explanation Style */
+        .diagnostic-explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fef2f2; /* Light red background for emphasis */
+            border: 1px solid #f87171;
+            border-radius: 8px;
+        }
+        .diagnostic-explanation h5 {
+            color: #b91c1c;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -216,6 +230,9 @@
         
         <p class="text-xl text-gray-700 mb-4" id="feedback-message"></p>
         
+        <!-- NEW Diagnostic Explanation Section -->
+        <div id="diagnostic-section"></div>
+
         <h4 class="text-lg font-bold text-green-700 mt-4 mb-2">✅ Correct Sequence:</h4>
         <div id="correct-sequence-display">
             <!-- Correct steps injected here -->
@@ -259,6 +276,13 @@
                 "The cave breaks through the headland, forming a natural arch. 🌉",
                 "The arch is eroded by waves and eventually collapses. 💥",
                 "A tall, isolated rock pillar (stack) is left standing. 🗿"
+            ],
+            explanations: [
+                "", // Step 0 has no preceding error
+                "The crack must **grow** before it can break through. Erosion is a gradual process.", // Step 1
+                "The landform is an **arch** only when the cave **breaks through** the headland. This must happen before collapse.", // Step 2
+                "The arch must exist and be subjected to erosion before the ceiling can **collapse** to form a stack.", // Step 3
+                "The **collapse** (Step 4) leaves the final pillar, the **stack**. Collapse must precede the final state." // Step 4
             ]
         },
         { 
@@ -267,6 +291,11 @@
                 "Snow gathers in hollows, forming circular corries (basins). ❄️",
                 "Glaciers cut back into the peak on two sides, eroding the corrie sidewalls. 🔪",
                 "The erosion processes converge, and the sharp ridge, the Arête, remains. 🗡️"
+            ],
+            explanations: [
+                "", // Step 0
+                "The **snow** must accumulate and form **glaciers** first (corries) before the ice can move and begin to **cut back** the mountain.", // Step 1
+                "The **cutting action** (erosion) must occur before the final **Arete** is formed by the convergence of the erosion lines." // Step 2
             ]
         },
         { 
@@ -276,6 +305,12 @@
                 "Water weathers the rock, exerting pressure downwards (downcutting). ⬇️",
                 "Materials from the river banks fall and are eroded (carried away). 🧹",
                 "The repeated downward cutting leaves a V-shape. 🏞️"
+            ],
+            explanations: [
+                "", // Step 0
+                "**Downcutting** is the specific mechanism of water pressure, and it must begin *after* the river starts to cut the land.", // Step 1
+                "The **materials** can only **fall** from the bank and be **carried away** *after* the downcutting has begun to destabilize the banks.", // Step 2
+                "The **V-shape** is the **final result** that appears *after* the cutting, falling, and carrying away has been repeated over time." // Step 3
             ]
         },
         { 
@@ -285,6 +320,12 @@
                 "Outwash (rocks and dirt) from the glacier surround and cover the dead ice. ⛰️",
                 "The dead ice eventually melts completely. ☀️",
                 "The space held by the ice collapses, leaving a hole behind (the kettle). 🕳️"
+            ],
+            explanations: [
+                "", // Step 0
+                "The **dead ice** must be **covered** by outwash *before* it can melt without immediately evaporating.", // Step 1
+                "The ice must be **covered** before it can **melt** completely underneath the sediment.", // Step 2
+                "The **collapse** is the final erosional event that creates the landform, which happens *after* all the ice has melted." // Step 3
             ]
         },
         { 
@@ -294,6 +335,12 @@
                 "These rivers carry rocks and debris (sediment). 🪨",
                 "The debris forms a river-bed *inside* the glacier. 🛌",
                 "When the glacier melts completely, the material is laid down, forming a ridge (Esker). 〰️"
+            ],
+            explanations: [
+                "", // Step 0
+                "The river must **form** *before* it can **carry** sediment.", // Step 1
+                "The river must **carry** the sediment *before* that sediment can **deposit** to form the river-bed.", // Step 2
+                "The **ridge** is the **final result** that appears on the ground *after* the glacier melts away." // Step 3
             ]
         }
     ];
@@ -312,7 +359,8 @@
     const feedbackModal = document.getElementById('feedback-modal');
     const scoreBarEl = document.getElementById('score-bar');
     const cheatsheetModal = document.getElementById('cheatsheet-modal');
-    const resultStatusEl = document.getElementById('result-status'); // NEW ELEMENT
+    const resultStatusEl = document.getElementById('result-status'); 
+    const diagnosticSectionEl = document.getElementById('diagnostic-section'); // NEW ELEMENT
 
     // --- Drag and Drop Handlers ---
 
@@ -406,7 +454,7 @@
 
         submitBtn.disabled = false;
         startBtn.style.display = 'none';
-        resultStatusEl.style.display = 'none'; // Ensure status is hidden on load
+        resultStatusEl.style.display = 'none'; 
 
         currentLandform = formationSequences[currentSequenceIndex];
         targetLandformEl.textContent = `Target: ${currentLandform.name}`;
@@ -439,8 +487,10 @@
         const totalSteps = currentLandform.steps.length;
         const sequenceDisplay = document.getElementById('correct-sequence-display');
         sequenceDisplay.innerHTML = '';
+        diagnosticSectionEl.innerHTML = ''; // Clear previous diagnosis
         
         let allSlotsFilled = true;
+        let incorrectSlots = [];
 
         // Clear previous visual feedback
         document.querySelectorAll('.timeline-slot').forEach(slot => {
@@ -465,6 +515,7 @@
             } else {
                 slot.classList.add('slot-incorrect');
                 isCorrect = false;
+                incorrectSlots.push({ step: i + 1, actualCardIndex: cardIndex });
             }
 
             // 3. Generate the correct sequence display regardless of submission outcome
@@ -492,13 +543,36 @@
             score++;
             resultStatusEl.textContent = "✅ PERFECT TIMELINE!";
             resultStatusEl.className = 'text-center text-3xl font-bold p-3 my-4 bg-green-200 text-green-800 rounded-lg shadow-lg';
+            diagnosticSectionEl.style.display = 'none';
         } else {
             resultStatusEl.textContent = "❌ SEQUENCE ERROR. CHECK RED SLOTS.";
             resultStatusEl.className = 'text-center text-3xl font-bold p-3 my-4 bg-red-200 text-red-800 rounded-lg shadow-lg';
+            
+            // 5. Generate Diagnostic Explanation
+            const diagnosis = document.createElement('div');
+            diagnosis.className = 'diagnostic-explanation';
+            diagnosis.innerHTML = `<h5>🛑 Analysis of Incorrect Steps:</h5>`;
+            
+            incorrectSlots.forEach(error => {
+                const incorrectExplanation = currentLandform.explanations[error.step - 1];
+                const correctStepText = currentLandform.steps[error.step - 1];
+
+                const incorrectElement = document.getElementById(`slot-${error.step - 1}`).querySelector('.step-card');
+                const incorrectText = incorrectElement ? incorrectElement.textContent : "Missing Step";
+                
+                diagnosis.innerHTML += `
+                    <p class="mb-2"><strong>Error at Step ${error.step} (Red Slot):</strong> You placed: <em>"${incorrectText}"</em></p>
+                    <p class="mb-2 pl-4"><strong>Must be:</strong> <em>"${correctStepText}"</em></p>
+                    <p class="mb-3 pl-4 text-sm text-gray-700 italic"><strong>Reason:</strong> ${incorrectExplanation}</p>
+                `;
+            });
+
+            diagnosticSectionEl.appendChild(diagnosis);
+            diagnosticSectionEl.style.display = 'block';
         }
         resultStatusEl.style.display = 'block';
 
-        // 5. Show detailed feedback modal after a small delay (to allow user to see the colors first)
+        // 6. Show detailed feedback modal after a small delay 
         setTimeout(() => {
             const titleEl = document.getElementById('feedback-title');
             const messageEl = document.getElementById('feedback-message');
@@ -510,7 +584,7 @@
                 modalContent.className = 'modal-content correct';
             } else {
                 titleEl.textContent = `❌ Sequence Incorrect.`;
-                messageEl.textContent = `You had an error in your timeline. Compare your red slots to the correct sequence below to see where the timing went wrong.`;
+                messageEl.textContent = `You had an error in your timeline. Use the analysis above and compare your red slots to the correct sequence below to see where the timing went wrong.`;
                 modalContent.className = 'modal-content incorrect';
             }
 
