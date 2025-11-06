@@ -66,11 +66,23 @@
             align-items: center;
             background-color: #eff6ff; /* Light blue slot */
             position: relative;
+            transition: background-color 0.3s, border-color 0.3s;
         }
         .timeline-slot.hover {
             background-color: #dbeafe;
             border-color: #1d4ed8;
         }
+        /* --- NEW VISUAL FEEDBACK STYLES --- */
+        .timeline-slot.slot-correct {
+            border-color: #10b981; /* Green border */
+            background-color: #e6ffed; /* Light green background */
+        }
+        .timeline-slot.slot-incorrect {
+            border-color: #ef4444; /* Red border */
+            background-color: #fce7e7; /* Light red background */
+        }
+        /* --------------------------------- */
+
         .slot-label {
             font-weight: 700;
             color: #1d4ed8;
@@ -107,7 +119,7 @@
             background-color: #10b981;
         }
         
-        /* Modal and Cheatsheet styles (reused from previous version) */
+        /* Modal and Cheatsheet styles */
         #feedback-modal, #cheatsheet-modal {
             position: fixed;
             top: 0;
@@ -184,6 +196,10 @@
         <!-- 2. Target Timeline: Sequential Slots -->
         <div>
             <h2 class="text-xl font-bold text-gray-700 mb-3">Target Timeline:</h2>
+            
+            <!-- NEW STATUS MESSAGE DISPLAY -->
+            <div id="result-status" class="hidden text-center text-xl font-bold p-3 my-4 rounded-lg shadow-md transition-all"></div>
+            
             <div id="timeline-area">
                 <!-- Drop slots injected here -->
             </div>
@@ -296,6 +312,7 @@
     const feedbackModal = document.getElementById('feedback-modal');
     const scoreBarEl = document.getElementById('score-bar');
     const cheatsheetModal = document.getElementById('cheatsheet-modal');
+    const resultStatusEl = document.getElementById('result-status'); // NEW ELEMENT
 
     // --- Drag and Drop Handlers ---
 
@@ -327,7 +344,6 @@
         const slot = event.currentTarget;
         
         // If the slot already contains an element, move it back to the source box
-        // Check if there is a 'step-card' child (ignoring the 'slot-label' span)
         const existingCard = slot.querySelector('.step-card');
         if (existingCard) { 
             sourceBoxEl.appendChild(existingCard);
@@ -336,6 +352,9 @@
         // Append the dragged element to the slot
         slot.appendChild(draggedElement);
         draggedElement.style.margin = '0'; // Remove margin once inside slot
+        
+        // Clear result status on interaction
+        resultStatusEl.style.display = 'none';
     }
 
     // --- Game Logic ---
@@ -387,6 +406,7 @@
 
         submitBtn.disabled = false;
         startBtn.style.display = 'none';
+        resultStatusEl.style.display = 'none'; // Ensure status is hidden on load
 
         currentLandform = formationSequences[currentSequenceIndex];
         targetLandformEl.textContent = `Target: ${currentLandform.name}`;
@@ -414,8 +434,6 @@
     }
 
     function checkTimeline() {
-        // Fix: Do not disable submitBtn immediately, check for empty slots first.
-        
         totalAttempts++;
         let isCorrect = true;
         const totalSteps = currentLandform.steps.length;
@@ -424,10 +442,14 @@
         
         let allSlotsFilled = true;
 
-        // 1. Check if all slots are filled and if the sequence is correct
+        // Clear previous visual feedback
+        document.querySelectorAll('.timeline-slot').forEach(slot => {
+            slot.classList.remove('slot-correct', 'slot-incorrect');
+        });
+
+        // 1. Check if all slots are filled and apply immediate color coding
         for (let i = 0; i < totalSteps; i++) {
             const slot = document.getElementById(`slot-${i}`);
-            // Check if there is a 'step-card' child (ignoring the 'slot-label' span)
             const card = slot.querySelector('.step-card'); 
             
             if (!card) {
@@ -437,57 +459,72 @@
             
             const cardIndex = parseInt(card.getAttribute('data-correct-index'));
             
-            // 2. Check if the card's correct index matches the slot index (i)
-            if (cardIndex !== i) {
+            // 2. Apply visual feedback to the slot
+            if (cardIndex === i) {
+                slot.classList.add('slot-correct');
+            } else {
+                slot.classList.add('slot-incorrect');
                 isCorrect = false;
             }
-        }
-        
-        // 3. Handle case where not all slots are filled (prevent "freeze" feeling)
-        if (!allSlotsFilled) {
-            alert("Please fill all timeline steps before submitting!");
-            totalAttempts--; // Don't count incomplete submissions
-            return; 
-        }
 
-        // Disable button after successful check to prevent double submission
-        submitBtn.disabled = true;
-
-        // 4. Generate the correct sequence display (now that we know slots are filled)
-        for (let i = 0; i < totalSteps; i++) {
+            // 3. Generate the correct sequence display regardless of submission outcome
             const correctStepEl = document.createElement('div');
             correctStepEl.className = 'correct-sequence-step';
             correctStepEl.innerHTML = `<strong>Step ${i + 1}:</strong> ${currentLandform.steps[i]}`;
             sequenceDisplay.appendChild(correctStepEl);
         }
-
-        // --- Provide Feedback ---
-        const titleEl = document.getElementById('feedback-title');
-        const messageEl = document.getElementById('feedback-message');
-        const nextBtn = document.getElementById('next-btn');
-
-        if (isCorrect) {
-            score++;
-            titleEl.textContent = `✅ Mastery Achieved!`;
-            messageEl.textContent = `You perfectly sequenced the formation of the ${currentLandform.name}. Your understanding of chronological flow is excellent!`;
-            modalContent.className = 'modal-content correct';
-        } else {
-            titleEl.textContent = `❌ Sequence Incorrect.`;
-            messageEl.textContent = `Review the correct sequence below. Understanding the logical flow of cause and effect is crucial for full mastery.`;
-            modalContent.className = 'modal-content incorrect';
+        
+        // --- Handle Submission State (Incomplete vs. Complete) ---
+        if (!allSlotsFilled) {
+            resultStatusEl.textContent = "⚠️ MISSING STEPS. Fill the timeline completely!";
+            resultStatusEl.className = 'text-center text-3xl font-bold p-3 my-4 bg-yellow-200 text-yellow-800 rounded-lg shadow-lg';
+            resultStatusEl.style.display = 'block';
+            totalAttempts--; // Don't count incomplete submissions
+            submitBtn.disabled = false;
+            return; 
         }
 
-        nextBtn.textContent = (currentSequenceIndex + 1) < totalLandforms ? 'Next Landform →' : 'Finish Review';
-        
+        // Disable button after successful check
+        submitBtn.disabled = true;
+
+        // 4. Show main result status (Green/Red Banner)
+        if (isCorrect) {
+            score++;
+            resultStatusEl.textContent = "✅ PERFECT TIMELINE!";
+            resultStatusEl.className = 'text-center text-3xl font-bold p-3 my-4 bg-green-200 text-green-800 rounded-lg shadow-lg';
+        } else {
+            resultStatusEl.textContent = "❌ SEQUENCE ERROR. CHECK RED SLOTS.";
+            resultStatusEl.className = 'text-center text-3xl font-bold p-3 my-4 bg-red-200 text-red-800 rounded-lg shadow-lg';
+        }
+        resultStatusEl.style.display = 'block';
+
+        // 5. Show detailed feedback modal after a small delay (to allow user to see the colors first)
+        setTimeout(() => {
+            const titleEl = document.getElementById('feedback-title');
+            const messageEl = document.getElementById('feedback-message');
+            const nextBtn = document.getElementById('next-btn');
+
+            if (isCorrect) {
+                titleEl.textContent = `✅ Mastery Achieved!`;
+                messageEl.textContent = `You perfectly sequenced the formation of the ${currentLandform.name}. Great job on the chronological flow!`;
+                modalContent.className = 'modal-content correct';
+            } else {
+                titleEl.textContent = `❌ Sequence Incorrect.`;
+                messageEl.textContent = `You had an error in your timeline. Compare your red slots to the correct sequence below to see where the timing went wrong.`;
+                modalContent.className = 'modal-content incorrect';
+            }
+
+            nextBtn.textContent = (currentSequenceIndex + 1) < totalLandforms ? 'Next Landform →' : 'Finish Review';
+            feedbackModal.style.display = 'flex';
+        }, 500); 
+
         updateScoreDisplay();
-        
-        // Fix: Ensure the modal display happens after the entire process
-        feedbackModal.style.display = 'flex';
     }
 
     function showFinalScore() {
         targetLandformEl.textContent = `Game Over!`;
         sourceBoxEl.innerHTML = '';
+        resultStatusEl.style.display = 'none';
         timelineAreaEl.innerHTML = `
             <div class="p-8 text-center bg-green-50 rounded-lg">
                 <h2 class="text-3xl font-bold text-green-700">Congratulations, Apex Master!</h2>
@@ -541,7 +578,7 @@
     window.onload = () => {
         targetLandformEl.textContent = 'Welcome to the Timeline Builder!';
         submitBtn.style.display = 'block';
-        submitBtn.disabled = false; // Allow submission checks on the first try
+        submitBtn.disabled = false;
         startBtn.style.display = 'block';
         updateScoreDisplay();
     };
