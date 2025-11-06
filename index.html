@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landform Assembly Line: Constructive vs. Destructive</title>
+    <title>Geologic Timeline Builder - Landform Mastery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
+            background-color: #e0f2fe; /* Light Blue Background */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -19,99 +19,139 @@
         .container {
             max-width: 1000px;
             width: 100%;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         .header {
             text-align: center;
             margin-bottom: 30px;
         }
-        .assembly-line {
-            display: grid;
-            gap: 20px;
-            min-height: 400px;
-            width: 100%;
+        h1 {
+            color: #1d4ed8;
+            font-weight: 800;
         }
-        /* Grid definitions based on mode */
-        .grid-2 { grid-template-columns: 1fr 1fr; }
-        .grid-3 { grid-template-columns: repeat(3, 1fr); }
-
-        .drop-zone {
-            padding: 20px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
-            border: 4px dashed #9ca3af;
-        }
-        .constructive {
-            background-color: #d1fae5; border-color: #10b981;
-        }
-        .destructive {
-            background-color: #fee2e2; border-color: #ef4444;
-        }
-        /* Specific Drop Zone Colors for Level 3 */
-        .mechanical { background-color: #fffbeb; border-color: #f59e0b; }
-        .chemical { background-color: #e0f2fe; border-color: #3b82f6; }
-        .erosion-zone { background-color: #f0f4f8; border-color: #059669; }
-
-        .drop-zone.hover {
-            border-style: solid;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-        .drop-zone h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        .card-area {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            min-height: 150px;
-            width: 100%;
-        }
-        .landform-card {
+        .step-card {
             cursor: grab;
-            width: 180px;
-            padding: 15px;
-            background-color: #ffffff;
+            padding: 12px;
+            background-color: #fef3c7; /* Yellowish for Scrambled Steps */
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-align: center;
-        }
-        .landform-card:active {
-            cursor: grabbing;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-            transform: scale(1.05) rotate(1deg);
-        }
-
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-            line-height: 1;
-            display: block;
-        }
-        .mode-toggle-btn {
-            padding: 8px 16px;
-            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s, opacity 0.3s;
+            font-size: 0.95rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            margin-bottom: 10px;
+            border-left: 5px solid #d97706;
         }
-        .mode-default { background-color: #60a5fa; color: white; }
-        .mode-deep { background-color: #f97316; color: white; }
-        .mode-ultimate { background-color: #8b5cf6; color: white; }
-        .mode-apex { background-color: #e30074; color: white; } /* NEW COLOR */
-
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .assembly-line {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
+        .step-card:active {
+            cursor: grabbing;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .source-box {
+            min-height: 150px;
+            padding: 15px;
+            border: 2px dashed #9ca3af;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .timeline-slot {
+            min-height: 60px;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            background-color: #eff6ff; /* Light blue slot */
+            position: relative;
+        }
+        .timeline-slot.hover {
+            background-color: #dbeafe;
+            border-color: #1d4ed8;
+        }
+        .slot-label {
+            font-weight: 700;
+            color: #1d4ed8;
+            margin-right: 15px;
+            min-width: 60px;
+        }
+        #timeline-area {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .target-landform {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #065f46;
+            text-align: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #d1fae5;
+            border-radius: 8px;
+            border: 2px solid #10b981;
+        }
+        .submit-btn {
+            padding: 12px 25px;
+            background-color: #065f46;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: background-color 0.2s;
+        }
+        .submit-btn:hover {
+            background-color: #10b981;
+        }
+        
+        /* Modal and Cheatsheet styles (reused from previous version) */
+        #feedback-modal, #cheatsheet-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+        .modal-content.correct { border-left: 8px solid #10b981; }
+        .modal-content.incorrect { border-left: 8px solid #ef4444; }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+        .cheatsheet-content {
+            max-width: 800px;
+            width: 95%;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+        }
+        .correct-sequence-step {
+            padding: 8px;
+            margin-bottom: 5px;
+            background-color: #e6ffed;
+            border-left: 5px solid #10b981;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -119,33 +159,37 @@
 
 <div class="container">
     <div class="header">
-        <h1 class="text-4xl font-extrabold text-blue-700">Landform Assembly Line</h1>
-        <p class="text-xl text-gray-600 mt-2">Sort the Landform Cards into the correct station.</p>
+        <h1 class="text-3xl font-extrabold">⏳ Geologic Timeline Builder</h1>
+        <p class="text-lg text-gray-600 mt-2">Drag the formation steps into the correct chronological order.</p>
         <div class="flex justify-center items-center mt-4 flex-wrap gap-4">
             <div class="score-bar" id="score-bar">Score: 0 / 0</div>
             <button class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition" onclick="showCheatsheet()">
                 Reference Cheatsheet 📚
             </button>
-            <button id="mode-toggle" class="mode-toggle-btn mode-default" onclick="toggleGameMode()">
-                Switch Mode
-            </button>
         </div>
     </div>
 
-    <!-- Assembly Line Container (Structure changes dynamically based on mode) -->
-    <div class="assembly-line" id="assembly-line-container">
-        <!-- Drop zones are injected here by JavaScript based on currentMode -->
-    </div>
+    <div class="target-landform" id="target-landform"></div>
 
-    <!-- Incoming Card Stack -->
-    <div class="mt-8 p-6 bg-white rounded-lg shadow-xl w-full max-w-lg text-center">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Incoming Card: <span id="mode-label" class="text-blue-500 text-base">(Level 1: Landform Mode)</span></h2>
-        <div id="current-card-container" class="flex justify-center">
-            <!-- Current card will be placed here -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+        <!-- 1. Source Box: Scrambled Steps -->
+        <div>
+            <h2 class="text-xl font-bold text-gray-700 mb-3">Scrambled Formation Steps:</h2>
+            <div id="source-box" class="source-box bg-gray-100 p-3">
+                <!-- Draggable step cards injected here -->
+            </div>
+            <button id="start-btn" class="submit-btn w-full mt-4" onclick="startGame()">Start Timeline</button>
         </div>
-        <button id="start-btn" class="mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition" onclick="startGame()">Start Game</button>
-    </div>
 
+        <!-- 2. Target Timeline: Sequential Slots -->
+        <div>
+            <h2 class="text-xl font-bold text-gray-700 mb-3">Target Timeline:</h2>
+            <div id="timeline-area">
+                <!-- Drop slots injected here -->
+            </div>
+            <button id="submit-btn" class="submit-btn w-full mt-4 bg-blue-600 hover:bg-blue-700" onclick="checkTimeline()">Submit Timeline</button>
+        </div>
+    </div>
 </div>
 
 <!-- Feedback Modal -->
@@ -154,52 +198,28 @@
         <span class="close-btn" onclick="hideFeedback()">&times;</span>
         <h3 class="text-2xl font-bold mb-3" id="feedback-title"></h3>
         
-        <span id="feedback-icon-display" class="block"></span>
-
-        <p class="text-lg mb-4 text-center" id="feedback-message"></p>
+        <p class="text-xl text-gray-700 mb-4" id="feedback-message"></p>
         
-        <div id="feedback-concept"></div>
+        <h4 class="text-lg font-bold text-green-700 mt-4 mb-2">✅ Correct Sequence:</h4>
+        <div id="correct-sequence-display">
+            <!-- Correct steps injected here -->
+        </div>
 
-        <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg" onclick="hideFeedback()">Continue</button>
+        <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg" id="next-btn" onclick="nextQuestion()">Next Landform &rarr;</button>
     </div>
 </div>
 
-<!-- Cheatsheet Modal (Cheatsheet table remains the same, updated by JS) -->
+<!-- Cheatsheet Modal -->
 <div id="cheatsheet-modal" onclick="hideCheatsheet(event)">
-    <div id="cheatsheet-content" onclick="event.stopPropagation()">
+    <div class="cheatsheet-content" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="hideCheatsheet()">&times;</span>
         <h3 class="text-2xl font-bold text-gray-800 mb-4">📚 Landform Formation Cheatsheet</h3>
-        <p class="text-gray-600">Reference the Landform Type and the **Visual Process Icon** before dropping your card. **Destructive Sub-Types** are listed in the far right column.</p>
+        <p class="text-gray-600">The key to the Timeline Builder is understanding the **Sequence** (right column).</p>
         
-        <h4 class="text-xl font-bold text-green-700 mt-6 mb-2">🛠️ Constructive Processes (BUILD UP)</h4>
-        <table id="cheatsheet-table">
-            <thead>
-                <tr>
-                    <th>Landform/Process</th>
-                    <th>Icon</th>
-                    <th>Type</th>
-                    <th>Process Icon</th>
-                    <th>Destructive Sub-Type</th>
-                    <th>Key Rule / Action</th>
-                </tr>
-            </thead>
-            <tbody id="constructive-rows"></tbody>
-        </table>
-        
-        <h4 class="text-xl font-bold text-red-700 mt-6 mb-2">💥 Destructive Processes (TEAR DOWN)</h4>
-        <table id="cheatsheet-table-destructive">
-             <thead>
-                <tr>
-                    <th>Landform/Process</th>
-                    <th>Icon</th>
-                    <th>Type</th>
-                    <th>Process Icon</th>
-                    <th>Destructive Sub-Type</th>
-                    <th>Key Rule / Action</th>
-                </tr>
-            </thead>
-            <tbody id="destructive-rows"></tbody>
-        </table>
+        <h4 class="text-xl font-bold text-green-700 mt-6 mb-2">Key Landform Sequences:</h4>
+        <div id="cheatsheet-details" class="space-y-4 text-sm">
+            <!-- Full step-by-step sequences injected here -->
+        </div>
         
         <button class="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg" onclick="hideCheatsheet()">Close Cheatsheet</button>
     </div>
@@ -207,110 +227,77 @@
 
 
 <script>
-    // Landforms Data with new properties for all levels, including the APEX PROMPT
-    const landformsData = [
-        // Destructive Landforms
-        { name: "Arete", icon: "⛰️", type: "Destructive", destructiveSubType: "Erosion", isDeepDive: false, description: "A sharp, narrow ridge formed between two glacial valleys.", apexPrompt: "Glaciers moving on both sides of this peak have worn away the two sides.", concept: "Glaciers erode and **move** the rock on both sides. This is **Erosion** because material is carried away.", processIcon: "🧊🔪 Glacial Erosion" },
-        { name: "V-Shaped Valley", icon: "🔽", type: "Destructive", destructiveSubType: "Erosion", isDeepDive: false, description: "A valley carved with a narrow bottom by a river.", apexPrompt: "Water has weathered the rock cutting downward and carried the materials away.", concept: "River water **cuts down and carries away** material (erosion), creating the V-shape.", processIcon: "🌊🔽 Water Carving" },
-        { name: "Sea Arch / Sea Stack", icon: "🏝️", type: "Destructive", destructiveSubType: "Erosion", isDeepDive: false, description: "Pillars of rock separated from the headland.", apexPrompt: "An area of land (headland) is weathered and eroded from the sides by hydraulic action.", concept: "Waves erode and **remove** material from the headland. This is **Erosion**.", processIcon: "💥🌊 Wave Breaking" },
-        { name: "Kettle", icon: "💧", type: "Destructive", destructiveSubType: "Erosion", isDeepDive: false, description: "A small pond or lake resembling a crater.", apexPrompt: "Large pieces of 'dead ice' break off, outwash covers them, and the space collapses when they melt.", concept: "The melting of dead ice results in the **removal of support and collapse**, which is classified as an erosional event.", processIcon: "🕳️⬇️ Ice Collapse" },
-
-        // Destructive Processes (Deep Dive)
-        { name: "Freeze-Thaw", icon: "🥶🔨", type: "Destructive", destructiveSubType: "Mechanical Weathering", isDeepDive: true, description: "The physical breaking of rock as frozen water expands in cracks.", apexPrompt: "Water freezes in the rock crack, expands, and makes the crack bigger.", concept: "This is **Mechanical Weathering** because the rock is broken **physically** without changing its chemical composition. It stays in place.", processIcon: "🔨💔 Mechanical Weathering" },
-        { name: "Root Wedging", icon: "🌳🔨", type: "Destructive", destructiveSubType: "Mechanical Weathering", isDeepDive: true, description: "Plant roots break rocks apart through physical pressure.", apexPrompt: "Root Wedging gets into small cracks and when they expand they break the rock a bit more.", concept: "This is also **Mechanical Weathering**. The force of the root is **physical**, breaking the rock apart (in place).", processIcon: "🌳🔨 Mechanical Weathering" },
-        { name: "Oxidation", icon: "🧪🎨", type: "Destructive", destructiveSubType: "Chemical Weathering", isDeepDive: true, description: "Rock minerals react with oxygen, causing a change in composition (like rust).", apexPrompt: "Oxidation is another example of chemical weathering. It reacts with metal.", concept: "This is **Chemical Weathering**. The rock's **substance changes** at a molecular level (in place).", processIcon: "⚛️🔄 Chemical Weathering" },
-        { name: "Glaciation (as force)", icon: "🏔️🧊", type: "Destructive", destructiveSubType: "Erosion", isDeepDive: true, description: "The powerful movement of large masses of ice, scraping and carrying the landscape.", apexPrompt: "An arete forms when two glaciers erode the peaks of the ridge and make it get a sharper point (process).", concept: "This is primarily **Erosion**. It's defined by the ice **moving** and transporting sediment over long distances.", processIcon: "🧊➡️ Erosion Force" },
-        
-        // Constructive Landforms/Processes
-        { name: "Esker", icon: "〰️", type: "Constructive", destructiveSubType: null, isDeepDive: false, description: "A long, winding ridge of material left by a melting glacier.", apexPrompt: "Rivers within a melting glacier carry rocks and debris, which are then laid on the ground in place.", concept: "Rivers *inside* the glacier **deposit** rocks and debris, **adding** land mass. This is **Sediment Deposition**.", processIcon: "⬆️⛰️ Sediment Ridge" },
-        { name: "Moraine", icon: "🚧", type: "Constructive", destructiveSubType: null, isDeepDive: false, description: "A ridge of scraped dirt and rocks pushed by a glacier.", apexPrompt: "A glacier moves and pushes dirt and rocks out of the way, building up a collection of material.", concept: "A glacier **pushes up and deposits** material, **adding** land mass. This is **Addition** of land mass.", processIcon: "🧱💪 Glacial Push" },
-        { name: "Coastline", icon: "🏖️", type: "Constructive", destructiveSubType: null, isDeepDive: false, description: "The edge of the land often formed by sediment deposit.", apexPrompt: "This process involves the building up (addition of land material) of features by natural action (general process).", concept: "Often involves **Sediment Deposition** (sand bars) that **build up** the land's edge.", processIcon: "🏖️➕ Land Addition" },
-        { name: "Fold Mountain", icon: "📈", type: "Constructive", destructiveSubType: null, isDeepDive: true, description: "Mountains formed by the upward folding of the Earth's crust.", apexPrompt: "An example of Crustal Deformation is the formation of a Fold Mountain (process).", concept: "This is **Crustal Deformation**, a powerful geological process that **pushes up and builds** land features.", processIcon: "⏫🗜️ Crustal Uplift" }
-    ];
-
-    const modeConfigurations = [
-        { name: "Landform Mode", level: 1, class: "mode-default", cards: landformsData.filter(lf => !lf.isDeepDive), targetTypes: ['Constructive', 'Destructive'], gridClass: 'grid-2', promptField: 'description' },
-        { name: "Deep Dive Mode", level: 2, class: "mode-deep", cards: landformsData, targetTypes: ['Constructive', 'Destructive'], gridClass: 'grid-2', promptField: 'description' },
-        { name: "Ultimate Challenge", level: 3, class: "mode-ultimate", cards: landformsData.filter(lf => lf.type === 'Destructive'), targetTypes: ['Mechanical Weathering', 'Chemical Weathering', 'Erosion'], gridClass: 'grid-3', promptField: 'description' },
-        { name: "Apex Master Challenge", level: 4, class: "mode-apex", cards: landformsData, targetTypes: ['Constructive', 'Destructive'], gridClass: 'grid-2', promptField: 'apexPrompt' } // NEW LEVEL
-    ];
-
-    let currentMode = 0; // 0, 1, 2, or 3
-    let currentLandform = null;
-    let landformsQueue = [];
-    let score = 0;
-    let totalCards = 0;
-
-    const assemblyLineContainer = document.getElementById('assembly-line-container');
-    const currentCardContainer = document.getElementById('current-card-container');
-    const feedbackModal = document.getElementById('feedback-modal');
-    const cheatsheetModal = document.getElementById('cheatsheet-modal');
-    const modalContent = document.getElementById('modal-content');
-    const startButton = document.getElementById('start-btn');
-    const scoreBar = document.getElementById('score-bar');
-    const feedbackIconDisplay = document.getElementById('feedback-icon-display');
-    const modeToggleButton = document.getElementById('mode-toggle');
-    const modeLabel = document.getElementById('mode-label');
-
-
-    // --- Mode Management ---
-
-    function toggleGameMode() {
-        currentMode = (currentMode + 1) % modeConfigurations.length;
-        renderDropZones();
-        startGame(); // Restart game in the new mode
-    }
-
-    function renderDropZones() {
-        const config = modeConfigurations[currentMode];
-        assemblyLineContainer.innerHTML = '';
-        assemblyLineContainer.className = `assembly-line ${config.gridClass}`;
-        
-        modeToggleButton.className = `mode-toggle-btn ${config.class}`;
-        modeToggleButton.textContent = `Switch Mode (Level ${((currentMode + 1) % modeConfigurations.length) + 1})`;
-        
-        modeLabel.textContent = `(Level ${config.level}: ${config.name})`;
-        modeLabel.className = `text-base ${config.class.replace('mode', 'text')}-500`;
-
-        const dropZoneDefs = [
-            { id: 'constructive-zone', type: 'Constructive', title: 'Constructive (Build Up)', emoji: '➕', colorClass: 'constructive', description: 'Addition of land, deposition.' },
-            { id: 'destructive-zone', type: 'Destructive', title: 'Destructive (Tear Down)', emoji: '➖', colorClass: 'destructive', description: 'Weathering, erosion, breaking down.' },
-            { id: 'mechanical-zone', type: 'Mechanical Weathering', title: 'Mechanical Weathering', emoji: '🔨', colorClass: 'mechanical', description: 'Physical break down (in place).' },
-            { id: 'chemical-zone', type: 'Chemical Weathering', title: 'Chemical Weathering', emoji: '🧪', colorClass: 'chemical', description: 'Chemical change of substance (in place).' },
-            { id: 'erosion-zone', type: 'Erosion', title: 'Erosion (Movement)', emoji: '💨', colorClass: 'erosion-zone', description: 'Breaking down AND carrying material away.' }
-        ];
-
-        let zonesToRender = [];
-        if (config.level < 3) {
-            zonesToRender = dropZoneDefs.filter(z => config.targetTypes.includes(z.type));
-        } else if (config.level === 3) {
-            zonesToRender = dropZoneDefs.slice(2, 5); // Mechanical, Chemical, Erosion
-        } else { // Level 4: Apex Master, only Constructive/Destructive zones (for simplified dropping)
-            zonesToRender = dropZoneDefs.slice(0, 2);
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
-        
-        zonesToRender.forEach(def => {
-            const zone = document.createElement('div');
-            zone.id = def.id;
-            zone.setAttribute('data-type', def.type);
-            zone.className = `drop-zone ${def.colorClass}`;
-            zone.innerHTML = `
-                <h2 class="flex items-center">
-                    <span class="text-2xl mr-2">${def.emoji}</span>
-                    ${def.title}
-                </h2>
-                <p class="text-gray-600 mb-4 text-center text-sm">${def.description}</p>
-                <div id="${def.id}-cards" class="card-area"></div>
-            `;
-            
-            zone.addEventListener('dragover', allowDrop);
-            zone.addEventListener('dragleave', removeHover);
-            zone.addEventListener('drop', drop);
-            assemblyLineContainer.appendChild(zone);
-        });
     }
 
-    // --- Drag and Drop Logic (simplified for brevity) ---
+    const formationSequences = [
+        { 
+            name: "Sea Arch / Sea Stack 🏝️", 
+            steps: [
+                "Large crack forms in the headland by hydraulic action (waves).",
+                "The crack grows into a cave by abrasion.",
+                "The cave breaks through the headland, forming a natural arch.",
+                "The arch is eroded by waves and eventually collapses.",
+                "A tall, isolated rock pillar (stack) is left standing."
+            ]
+        },
+        { 
+            name: "Arete (Glacial Ridge) ⛰️", 
+            steps: [
+                "Snow gathers in hollows, forming circular corries (basins).",
+                "Glaciers cut back into the peak on two sides, eroding the corrie sidewalls.",
+                "The erosion processes converge, and the sharp ridge, the Arête, remains."
+            ]
+        },
+        { 
+            name: "V-Shaped Valley 🔽", 
+            steps: [
+                "A river begins to cut vertically down into the land.",
+                "Water weathers the rock, exerting pressure downwards (downcutting).",
+                "Materials from the river banks fall and are eroded (carried away).",
+                "The repeated downward cutting leaves a V-shape."
+            ]
+        },
+        { 
+            name: "Kettle (Lake/Pond) 💧", 
+            steps: [
+                "A glacier retreats, and large pieces of ice ('dead ice') break off.",
+                "Outwash (rocks and dirt) from the glacier surround and cover the dead ice.",
+                "The dead ice eventually melts completely.",
+                "The space held by the ice collapses, leaving a hole behind (the kettle)."
+            ]
+        },
+        { 
+            name: "Esker (Glacial Ridge) 〰️", 
+            steps: [
+                "Glaciers melt, and rivers form within or on top of them.",
+                "These rivers carry rocks and debris (sediment).",
+                "The debris forms a river-bed *inside* the glacier.",
+                "When the glacier melts completely, the material is laid down, forming a ridge (Esker)."
+            ]
+        }
+    ];
+
+    let currentSequenceIndex = 0;
+    let currentLandform = null;
+    let score = 0;
+    let totalAttempts = 0;
+    let totalLandforms = formationSequences.length;
+
+    const targetLandformEl = document.getElementById('target-landform');
+    const sourceBoxEl = document.getElementById('source-box');
+    const timelineAreaEl = document.getElementById('timeline-area');
+    const submitBtn = document.getElementById('submit-btn');
+    const startBtn = document.getElementById('start-btn');
+    const feedbackModal = document.getElementById('feedback-modal');
+    const scoreBarEl = document.getElementById('score-bar');
+    const cheatsheetModal = document.getElementById('cheatsheet-modal');
+
+    // --- Drag and Drop Handlers ---
 
     function allowDrop(event) {
         event.preventDefault();
@@ -321,246 +308,204 @@
         event.currentTarget.classList.remove('hover');
     }
 
-    function drag(event, data) {
-        event.dataTransfer.setData("application/json", JSON.stringify(data));
-        event.currentTarget.classList.add('opacity-50');
+    function drag(event) {
+        event.dataTransfer.setData("text/plain", event.target.id);
+        event.target.style.opacity = '0.5';
+    }
+    
+    function dragEnd(event) {
+        event.target.style.opacity = '1';
     }
 
     function drop(event) {
         event.preventDefault();
         removeHover(event);
-        const droppedData = JSON.parse(event.dataTransfer.getData("application/json"));
-        const targetType = event.currentTarget.getAttribute('data-type');
         
-        checkClassification(droppedData, targetType, event.currentTarget);
+        const dataId = event.dataTransfer.getData("text/plain");
+        const draggedElement = document.getElementById(dataId);
+        const slot = event.currentTarget;
+        
+        // If the slot already contains an element, move it back to the source box
+        if (slot.children.length > 1) { // Slot label counts as one child
+            sourceBoxEl.appendChild(slot.querySelector('.step-card'));
+        }
+        
+        // Append the dragged element to the slot
+        slot.appendChild(draggedElement);
+        draggedElement.style.margin = '0'; // Remove margin once inside slot
     }
 
     // --- Game Logic ---
 
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+    function generateTimelineSlots(stepCount) {
+        timelineAreaEl.innerHTML = '';
+        for (let i = 0; i < stepCount; i++) {
+            const slot = document.createElement('div');
+            slot.id = `slot-${i}`;
+            slot.className = 'timeline-slot';
+            slot.innerHTML = `<span class="slot-label">Step ${i + 1}:</span>`;
+            
+            slot.addEventListener('dragover', allowDrop);
+            slot.addEventListener('dragleave', removeHover);
+            slot.addEventListener('drop', drop);
+            
+            timelineAreaEl.appendChild(slot);
         }
     }
 
-    function startGame() {
-        startButton.style.display = 'none';
+    function generateStepCards(steps) {
+        sourceBoxEl.innerHTML = '';
         
-        const config = modeConfigurations[currentMode];
-        let filteredData = config.cards;
-
-        shuffleArray(filteredData);
-        landformsQueue = [...filteredData];
-        score = 0;
-        totalCards = 0;
+        // Assign a unique ID and original index to each step
+        const stepData = steps.map((text, index) => ({ text, index }));
+        shuffleArray(stepData);
         
-        document.querySelectorAll('.card-area').forEach(el => el.innerHTML = '');
-
-        updateScoreBar();
-        loadNextCard();
+        stepData.forEach((data, i) => {
+            const card = document.createElement('div');
+            card.id = `card-${i}`;
+            // Store the original, correct index as a data attribute
+            card.setAttribute('data-correct-index', data.index); 
+            card.className = 'step-card';
+            card.setAttribute('draggable', true);
+            card.textContent = data.text;
+            
+            card.addEventListener('dragstart', drag);
+            card.addEventListener('dragend', dragEnd);
+            
+            sourceBoxEl.appendChild(card);
+        });
     }
 
-    function loadNextCard() {
-        currentCardContainer.innerHTML = '';
-        currentLandform = null;
-
-        if (landformsQueue.length === 0) {
+    function loadQuestion() {
+        if (currentSequenceIndex >= formationSequences.length) {
             showFinalScore();
             return;
         }
 
-        currentLandform = landformsQueue.shift();
-        totalCards++;
+        submitBtn.disabled = false;
+        startBtn.style.display = 'none';
 
-        const config = modeConfigurations[currentMode];
-        const cardPrompt = currentLandform[config.promptField];
+        currentLandform = formationSequences[currentSequenceIndex];
+        targetLandformEl.textContent = `Target: ${currentLandform.name}`;
 
-        const card = document.createElement('div');
-        card.className = 'landform-card';
-        card.setAttribute('draggable', true);
-        card.setAttribute('id', 'current-drag-card');
-        card.addEventListener('dragstart', (e) => drag(e, currentLandform));
-        card.addEventListener('dragend', (e) => e.currentTarget.classList.remove('opacity-50'));
+        generateTimelineSlots(currentLandform.steps.length);
+        generateStepCards(currentLandform.steps);
         
-        // Dynamic card content based on level
-        if (config.level < 4) {
-             card.innerHTML = `
-                <span class="card-icon">${currentLandform.icon}</span>
-                <h3 class="text-lg">${currentLandform.name}</h3>
-                <p>${cardPrompt}</p>
-            `;
-        } else {
-            // Level 4: Apex Master - Icon + Prompt only
-            card.innerHTML = `
-                <span class="card-icon">${currentLandform.icon}</span>
-                <h3 class="text-base font-bold text-red-600">(APEX MASTER PROMPT)</h3>
-                <p class="text-sm">${cardPrompt}</p>
-            `;
-        }
-
-
-        currentCardContainer.appendChild(card);
+        feedbackModal.style.display = 'none';
+        
+        updateScoreDisplay();
     }
 
-    function checkClassification(cardData, targetType, dropZone) {
-        const config = modeConfigurations[currentMode];
-        let isCorrect = false;
-        let cardTarget;
+    function startGame() {
+        // Reset and shuffle sequence order
+        shuffleArray(formationSequences);
+        currentSequenceIndex = 0;
+        score = 0;
+        totalAttempts = 0;
+        loadQuestion();
+    }
+    
+    function nextQuestion() {
+        currentSequenceIndex++;
+        loadQuestion();
+    }
 
-        if (config.level < 3 || config.level === 4) {
-            // Level 1, 2, 4: Target is the main 'type' (Constructive/Destructive)
-            cardTarget = cardData.type;
-            isCorrect = cardTarget === targetType;
-        } else {
-            // Level 3: Target is the 'destructiveSubType'
-            cardTarget = cardData.destructiveSubType;
-            isCorrect = cardTarget === targetType;
+    function checkTimeline() {
+        submitBtn.disabled = true;
+        totalAttempts++;
+        let isCorrect = true;
+        const totalSteps = currentLandform.steps.length;
+        const sequenceDisplay = document.getElementById('correct-sequence-display');
+        sequenceDisplay.innerHTML = '';
+        
+        // 1. Check if all slots are filled
+        for (let i = 0; i < totalSteps; i++) {
+            const slot = document.getElementById(`slot-${i}`);
+            const card = slot.querySelector('.step-card');
+            
+            if (!card) {
+                isCorrect = false;
+                break; // Exit if any slot is empty
+            }
+            
+            const cardIndex = parseInt(card.getAttribute('data-correct-index'));
+            
+            // 2. Check if the card's correct index matches the slot index (i)
+            if (cardIndex !== i) {
+                isCorrect = false;
+            }
+            
+            // Generate the correct sequence display regardless of outcome
+            const correctStepEl = document.createElement('div');
+            correctStepEl.className = 'correct-sequence-step';
+            correctStepEl.innerHTML = `<strong>Step ${i + 1}:</strong> ${currentLandform.steps[i]}`;
+            sequenceDisplay.appendChild(correctStepEl);
         }
 
-        showFeedback(isCorrect, cardData, cardTarget, targetType);
-
-        // Move card visually
-        const cardElement = document.getElementById('current-drag-card');
-        if (cardElement) {
-            cardElement.remove();
-            
-            // Determine permanent card label based on mode
-            const permanentCardLabel = config.level < 3 || config.level === 4 ? cardData.name : cardTarget;
-
-            const permanentCard = document.createElement('div');
-            permanentCard.className = `landform-card ${isCorrect ? 'bg-green-100 border-2 border-green-500' : 'bg-red-100 border-2 border-red-500'} cursor-default`;
-            permanentCard.style.width = '160px'; 
-            permanentCard.innerHTML = `
-                <span class="card-icon" style="font-size: 1.5rem;">${cardData.icon}</span>
-                <h3 class="text-base">${permanentCardLabel}</h3>
-                <p class="text-xs">${cardData.type}</p>
-            `;
-            
-            document.getElementById(dropZone.id + '-cards').appendChild(permanentCard);
-
-        }
+        // --- Provide Feedback ---
+        const titleEl = document.getElementById('feedback-title');
+        const messageEl = document.getElementById('feedback-message');
+        const nextBtn = document.getElementById('next-btn');
 
         if (isCorrect) {
             score++;
-        }
-        
-        updateScoreBar();
-        setTimeout(loadNextCard, 50); 
-    }
-
-    function showFeedback(isCorrect, cardData, actualType, droppedType) {
-        const title = document.getElementById('feedback-title');
-        const message = document.getElementById('feedback-message');
-        const concept = document.getElementById('feedback-concept');
-        const config = modeConfigurations[currentMode];
-
-        const [iconEmoji, textExplanation] = cardData.processIcon.split(/ (.+)/);
-        feedbackIconDisplay.textContent = iconEmoji;
-        
-        let successMessage;
-        let ruleExplanation;
-
-        if (config.level === 4) {
-            // Level 4 feedback focuses on the SYNTHESIS
-            const landformName = cardData.name;
-            const fullType = cardData.type;
-
-            if (isCorrect) {
-                successMessage = `You correctly classified the process (which creates a **${landformName}**) as **${fullType}**!`;
-            } else {
-                successMessage = `You placed the process (which creates a **${landformName}**) in the **${droppedType}** station. It is actually **${fullType}**!`;
-            }
-            ruleExplanation = `**SYNTHESIS:** The action of **"${cardData.apexPrompt}"** results in a **${landformName}**. This action is classified as **${fullType}**.`;
-
-        } else {
-            // Levels 1, 2, 3 feedback
-            if (isCorrect) {
-                successMessage = `You correctly classified **${cardData.name}** as **${actualType}**!`;
-            } else {
-                successMessage = `You placed **${cardData.name}** in the **${droppedType}** station. It is actually **${actualType}**!`;
-            }
-            ruleExplanation = `**Rule:** ${cardData.concept}`;
-        }
-
-
-        if (isCorrect) {
-            title.textContent = "✅ Correct!";
+            titleEl.textContent = `✅ Mastery Achieved!`;
+            messageEl.textContent = `You perfectly sequenced the formation of the ${currentLandform.name}. Your understanding of chronological flow is excellent!`;
             modalContent.className = 'modal-content correct';
         } else {
-            title.textContent = "❌ Not Quite...";
+            titleEl.textContent = `❌ Sequence Incorrect.`;
+            messageEl.textContent = `Review the correct sequence below. Understanding the logical flow of cause and effect is crucial for full mastery.`;
             modalContent.className = 'modal-content incorrect';
         }
 
-        message.innerHTML = successMessage;
-        concept.innerHTML = `
-            <p class="mt-4 text-center text-lg font-bold">Process: ${textExplanation}</p>
-            <p class="text-sm text-gray-700 italic mt-2">${ruleExplanation}</p>
-        `;
+        nextBtn.textContent = (currentSequenceIndex + 1) < totalLandforms ? 'Next Landform →' : 'Finish Review';
         
+        updateScoreDisplay();
         feedbackModal.style.display = 'flex';
     }
 
-    function hideFeedback() {
-        feedbackModal.style.display = 'none';
-        if (landformsQueue.length === 0 && currentCardContainer.innerHTML === '') {
-            showFinalScore();
-        }
-    }
-    
     function showFinalScore() {
-        const finalMessage = `
-            <h2>Quiz Complete!</h2>
-            <p class="text-xl">Your Final Score: **${score} out of ${totalCards}**.</p>
-            <p class="mt-4">You have mastered Level ${modeConfigurations[currentMode].level}! Review the incorrect ones above.</p>
-            <button class="mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition" onclick="window.location.reload()">Start Over</button>
+        targetLandformEl.textContent = `Game Over!`;
+        sourceBoxEl.innerHTML = '';
+        timelineAreaEl.innerHTML = `
+            <div class="p-8 text-center bg-green-50 rounded-lg">
+                <h2 class="text-3xl font-bold text-green-700">Congratulations, Apex Master!</h2>
+                <p class="text-xl mt-3">You completed all ${totalLandforms} timelines.</p>
+                <p class="text-2xl font-extrabold mt-4">Final Score: ${score} / ${totalAttempts}</p>
+                <button class="submit-btn mt-6 bg-blue-600 hover:bg-blue-700" onclick="startGame()">Start a New Game</button>
+            </div>
         `;
-        document.getElementById('current-card-container').innerHTML = finalMessage;
     }
 
-    function updateScoreBar() {
-        scoreBar.textContent = `Score: ${score} / ${totalCards}`;
+    function updateScoreDisplay() {
+        scoreBarEl.textContent = `Score: ${score} / ${totalAttempts} (Landforms Attempted: ${currentSequenceIndex})`;
     }
 
-    // --- Cheatsheet Logic ---
 
-    function generateCheatsheetTable() {
-        const constructiveRows = document.getElementById('constructive-rows');
-        const destructiveRows = document.getElementById('destructive-rows');
-        constructiveRows.innerHTML = '';
-        destructiveRows.innerHTML = '';
+    // --- Cheatsheet Logic (Updated to show full sequences) ---
 
-        const cheatsheetData = [...landformsData].sort((a, b) => a.name.localeCompare(b.name));
+    function generateCheatsheetDetails() {
+        const cheatsheetDetailsEl = document.getElementById('cheatsheet-details');
+        cheatsheetDetailsEl.innerHTML = '';
 
-        cheatsheetData.forEach(lf => {
-            const [processIconEmoji, processIconText] = lf.processIcon.split(/ (.+)/);
+        formationSequences.forEach(lf => {
+            const detailBlock = document.createElement('div');
+            detailBlock.className = 'p-3 bg-gray-50 rounded-lg border border-gray-200';
             
-            const row = document.createElement('tr');
-            row.className = lf.type === 'Constructive' ? 'constructive-row' : 'destructive-row';
-            
-            const deepDiveMark = lf.isDeepDive ? '<span class="text-orange-500 font-bold mr-1">🟠</span>' : '';
-            const destructiveSubType = lf.destructiveSubType || 'N/A';
-            const subTypeClass = lf.destructiveSubType ? `font-semibold text-sm ${lf.destructiveSubType === 'Erosion' ? 'text-green-700' : (lf.destructiveSubType.includes('Mechanical') ? 'text-yellow-700' : 'text-blue-700')}` : 'text-gray-500';
+            let stepsHtml = lf.steps.map((step, index) => 
+                `<div class="flex items-start text-gray-700"><span class="font-bold mr-2 text-blue-600">${index + 1}.</span> ${step}</div>`
+            ).join('');
 
-            row.innerHTML = `
-                <td data-label="Landform/Process"><strong>${deepDiveMark}${lf.name}</strong></td>
-                <td data-label="Icon">${lf.icon}</td>
-                <td data-label="Type">${lf.type}</td>
-                <td data-label="Process Icon"><strong>${processIconEmoji}</strong> ${processIconText}</td>
-                <td data-label="Destructive Sub-Type" class="${subTypeClass}">${destructiveSubType}</td>
-                <td data-label="Key Rule">${lf.concept.split('.').slice(0, 1).join('.')}</td>
+            detailBlock.innerHTML = `
+                <h5 class="text-lg font-bold text-green-700 mb-2">${lf.name} Sequence:</h5>
+                ${stepsHtml}
             `;
-
-            if (lf.type === 'Constructive') {
-                constructiveRows.appendChild(row);
-            } else {
-                destructiveRows.appendChild(row);
-            }
+            cheatsheetDetailsEl.appendChild(detailBlock);
         });
     }
 
     function showCheatsheet() {
-        generateCheatsheetTable();
+        generateCheatsheetDetails();
         cheatsheetModal.style.display = 'flex';
     }
 
@@ -570,13 +515,14 @@
         }
     }
 
-
     // --- Initialization ---
 
     window.onload = () => {
-        renderDropZones(); // Set up the default Level 1 zones
-        document.getElementById('current-card-container').innerHTML = `<p class="text-gray-500">Press 'Start Game' to begin sorting landforms.</p>`;
-        generateCheatsheetTable(); 
+        targetLandformEl.textContent = 'Welcome to the Timeline Builder!';
+        submitBtn.style.display = 'block';
+        submitBtn.disabled = true;
+        startBtn.style.display = 'block';
+        updateScoreDisplay();
     };
 </script>
 
