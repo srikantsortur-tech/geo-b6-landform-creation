@@ -236,48 +236,48 @@
 
     const formationSequences = [
         { 
-            name: "Sea Arch / Sea Stack 🏝️", 
+            name: "Sea Arch / Sea Stack 🌊🗿", 
             steps: [
-                "Large crack forms in the headland by hydraulic action (waves).",
-                "The crack grows into a cave by abrasion.",
-                "The cave breaks through the headland, forming a natural arch.",
-                "The arch is eroded by waves and eventually collapses.",
-                "A tall, isolated rock pillar (stack) is left standing."
+                "Large crack forms in the headland by hydraulic action (waves). 🌊",
+                "The crack grows into a cave by abrasion. ➡️",
+                "The cave breaks through the headland, forming a natural arch. 🌉",
+                "The arch is eroded by waves and eventually collapses. 💥",
+                "A tall, isolated rock pillar (stack) is left standing. 🗿"
             ]
         },
         { 
-            name: "Arete (Glacial Ridge) ⛰️", 
+            name: "Arete (Glacial Ridge) 🧊🏔️", 
             steps: [
-                "Snow gathers in hollows, forming circular corries (basins).",
-                "Glaciers cut back into the peak on two sides, eroding the corrie sidewalls.",
-                "The erosion processes converge, and the sharp ridge, the Arête, remains."
+                "Snow gathers in hollows, forming circular corries (basins). ❄️",
+                "Glaciers cut back into the peak on two sides, eroding the corrie sidewalls. 🔪",
+                "The erosion processes converge, and the sharp ridge, the Arête, remains. 🗡️"
             ]
         },
         { 
-            name: "V-Shaped Valley 🔽", 
+            name: "V-Shaped Valley 🏞️🔽", 
             steps: [
-                "A river begins to cut vertically down into the land.",
-                "Water weathers the rock, exerting pressure downwards (downcutting).",
-                "Materials from the river banks fall and are eroded (carried away).",
-                "The repeated downward cutting leaves a V-shape."
+                "A river begins to cut vertically down into the land. 💧",
+                "Water weathers the rock, exerting pressure downwards (downcutting). ⬇️",
+                "Materials from the river banks fall and are eroded (carried away). 🧹",
+                "The repeated downward cutting leaves a V-shape. 🏞️"
             ]
         },
         { 
-            name: "Kettle (Lake/Pond) 💧", 
+            name: "Kettle (Lake/Pond) 🧊💧", 
             steps: [
-                "A glacier retreats, and large pieces of ice ('dead ice') break off.",
-                "Outwash (rocks and dirt) from the glacier surround and cover the dead ice.",
-                "The dead ice eventually melts completely.",
-                "The space held by the ice collapses, leaving a hole behind (the kettle)."
+                "A glacier retreats, and large pieces of ice ('dead ice') break off. 🧊",
+                "Outwash (rocks and dirt) from the glacier surround and cover the dead ice. ⛰️",
+                "The dead ice eventually melts completely. ☀️",
+                "The space held by the ice collapses, leaving a hole behind (the kettle). 🕳️"
             ]
         },
         { 
-            name: "Esker (Glacial Ridge) 〰️", 
+            name: "Esker (Glacial Ridge) 〰️🧊", 
             steps: [
-                "Glaciers melt, and rivers form within or on top of them.",
-                "These rivers carry rocks and debris (sediment).",
-                "The debris forms a river-bed *inside* the glacier.",
-                "When the glacier melts completely, the material is laid down, forming a ridge (Esker)."
+                "Glaciers melt, and rivers form within or on top of them. 💧",
+                "These rivers carry rocks and debris (sediment). 🪨",
+                "The debris forms a river-bed *inside* the glacier. 🛌",
+                "When the glacier melts completely, the material is laid down, forming a ridge (Esker). 〰️"
             ]
         }
     ];
@@ -305,6 +305,7 @@
     }
 
     function removeHover(event) {
+        event.preventDefault();
         event.currentTarget.classList.remove('hover');
     }
 
@@ -326,8 +327,10 @@
         const slot = event.currentTarget;
         
         // If the slot already contains an element, move it back to the source box
-        if (slot.children.length > 1) { // Slot label counts as one child
-            sourceBoxEl.appendChild(slot.querySelector('.step-card'));
+        // Check if there is a 'step-card' child (ignoring the 'slot-label' span)
+        const existingCard = slot.querySelector('.step-card');
+        if (existingCard) { 
+            sourceBoxEl.appendChild(existingCard);
         }
         
         // Append the dragged element to the slot
@@ -411,21 +414,25 @@
     }
 
     function checkTimeline() {
-        submitBtn.disabled = true;
+        // Fix: Do not disable submitBtn immediately, check for empty slots first.
+        
         totalAttempts++;
         let isCorrect = true;
         const totalSteps = currentLandform.steps.length;
         const sequenceDisplay = document.getElementById('correct-sequence-display');
         sequenceDisplay.innerHTML = '';
         
-        // 1. Check if all slots are filled
+        let allSlotsFilled = true;
+
+        // 1. Check if all slots are filled and if the sequence is correct
         for (let i = 0; i < totalSteps; i++) {
             const slot = document.getElementById(`slot-${i}`);
-            const card = slot.querySelector('.step-card');
+            // Check if there is a 'step-card' child (ignoring the 'slot-label' span)
+            const card = slot.querySelector('.step-card'); 
             
             if (!card) {
-                isCorrect = false;
-                break; // Exit if any slot is empty
+                allSlotsFilled = false;
+                break; 
             }
             
             const cardIndex = parseInt(card.getAttribute('data-correct-index'));
@@ -434,8 +441,20 @@
             if (cardIndex !== i) {
                 isCorrect = false;
             }
-            
-            // Generate the correct sequence display regardless of outcome
+        }
+        
+        // 3. Handle case where not all slots are filled (prevent "freeze" feeling)
+        if (!allSlotsFilled) {
+            alert("Please fill all timeline steps before submitting!");
+            totalAttempts--; // Don't count incomplete submissions
+            return; 
+        }
+
+        // Disable button after successful check to prevent double submission
+        submitBtn.disabled = true;
+
+        // 4. Generate the correct sequence display (now that we know slots are filled)
+        for (let i = 0; i < totalSteps; i++) {
             const correctStepEl = document.createElement('div');
             correctStepEl.className = 'correct-sequence-step';
             correctStepEl.innerHTML = `<strong>Step ${i + 1}:</strong> ${currentLandform.steps[i]}`;
@@ -461,6 +480,8 @@
         nextBtn.textContent = (currentSequenceIndex + 1) < totalLandforms ? 'Next Landform →' : 'Finish Review';
         
         updateScoreDisplay();
+        
+        // Fix: Ensure the modal display happens after the entire process
         feedbackModal.style.display = 'flex';
     }
 
@@ -520,7 +541,7 @@
     window.onload = () => {
         targetLandformEl.textContent = 'Welcome to the Timeline Builder!';
         submitBtn.style.display = 'block';
-        submitBtn.disabled = true;
+        submitBtn.disabled = false; // Allow submission checks on the first try
         startBtn.style.display = 'block';
         updateScoreDisplay();
     };
