@@ -192,6 +192,22 @@
             background-color: #fff1f2;
         }
 
+        .mode-toggle-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .mode-default {
+            background-color: #60a5fa;
+            color: white;
+        }
+        .mode-deep {
+            background-color: #f97316;
+            color: white;
+        }
+
 
         /* Mobile Adjustments */
         @media (max-width: 768px) {
@@ -246,8 +262,11 @@
         <p class="text-xl text-gray-600 mt-2">Sort the Landform Cards into the **Constructive** or **Destructive** station.</p>
         <div class="flex justify-center items-center mt-4">
             <div class="score-bar mr-6" id="score-bar">Score: 0 / 0</div>
-            <button class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition" onclick="showCheatsheet()">
+            <button class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition mr-4" onclick="showCheatsheet()">
                 Reference Cheatsheet 📚
+            </button>
+            <button id="mode-toggle" class="mode-toggle-btn mode-default" onclick="toggleDeepDiveMode()">
+                Switch to Deep Dive Mode (Level 2)
             </button>
         </div>
     </div>
@@ -276,7 +295,7 @@
 
     <!-- Incoming Card Stack -->
     <div class="mt-8 p-6 bg-white rounded-lg shadow-xl w-full max-w-lg text-center">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Incoming Landform Card:</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Incoming Card: <span id="mode-label" class="text-blue-500 text-base">(Landform Mode)</span></h2>
         <div id="current-card-container" class="flex justify-center">
             <!-- Current card will be placed here -->
         </div>
@@ -306,13 +325,13 @@
     <div id="cheatsheet-content" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="hideCheatsheet()">&times;</span>
         <h3 class="text-2xl font-bold text-gray-800 mb-4">📚 Landform Formation Cheatsheet</h3>
-        <p class="text-gray-600">Reference the Landform Type and the **Visual Process Icon** before dropping your card.</p>
+        <p class="text-gray-600">Reference the Landform Type and the **Visual Process Icon** before dropping your card. **Deep Dive Concepts are marked with 🟠.**</p>
         
         <h4 class="text-xl font-bold text-green-700 mt-6 mb-2">🛠️ Constructive Processes (BUILD UP)</h4>
         <table id="cheatsheet-table">
             <thead>
                 <tr>
-                    <th>Landform</th>
+                    <th>Landform/Process</th>
                     <th>Icon</th>
                     <th>Type</th>
                     <th>Process Icon</th>
@@ -328,7 +347,7 @@
         <table id="cheatsheet-table-destructive">
              <thead>
                 <tr>
-                    <th>Landform</th>
+                    <th>Landform/Process</th>
                     <th>Icon</th>
                     <th>Type</th>
                     <th>Process Icon</th>
@@ -346,26 +365,31 @@
 
 
 <script>
-    // Landforms Data with new ProcessIcon: [EMOJI] [SHORT TEXT DESCRIPTION]
-    // NEW: Added 'icon' for visual card representation
+    // Expanded Landforms Data including Deep Dive Process Cards
     const landformsData = [
-        // Destructive Icons: 
-        { name: "Arete", icon: "⛰️", type: "Destructive", description: "A sharp, narrow ridge formed between two glacial valleys.", concept: "Glaciers erode the mountain on both sides, **tearing down** the rock to create a sharp edge. This is a classic result of **Erosion**.", processIcon: "🧊🔪 Glacial Erosion" },
-        { name: "V-Shaped Valley", icon: "🔽", type: "Destructive", description: "A valley carved with a narrow bottom and steady incline by a river.", concept: "Running water weathers the rock and cuts **downward**, carrying material away. The river is actively **carving out** the land, making it Destructive.", processIcon: "🌊🔽 Water Carving" },
-        { name: "Sea Arch / Sea Stack", icon: "🏝️", type: "Destructive", description: "Pillars of rock separated from the headland.", concept: "Waves continuously hit and erode the headland, breaking it down into a cave, an arch, and finally a stack. This is constant **breaking down (erosion)**.", processIcon: "💥🌊 Wave Breaking" },
-        { name: "Kettle", icon: "💧", type: "Destructive", description: "A small pond or lake resembling a crater.", concept: "Formed when 'dead ice' melts, causing the surrounding outwash to **collapse** and leave a hole. The process is defined by the **collapse/removal** of support.", processIcon: "🕳️⬇️ Ice Collapse" },
+        // Level 1 Landforms (8 cards)
+        { name: "Arete", icon: "⛰️", type: "Destructive", isDeepDive: false, description: "A sharp, narrow ridge formed between two glacial valleys.", concept: "Glaciers erode the mountain on both sides, **tearing down** the rock to create a sharp edge. This is **Erosion (Glacial)**.", processIcon: "🧊🔪 Glacial Erosion" },
+        { name: "V-Shaped Valley", icon: "🔽", type: "Destructive", isDeepDive: false, description: "A valley carved with a narrow bottom and steady incline by a river.", concept: "Running water weathers the rock and cuts **downward**, carrying material away. The river is actively **carving out** the land, making it Destructive.", processIcon: "🌊🔽 Water Carving" },
+        { name: "Sea Arch / Sea Stack", icon: "🏝️", type: "Destructive", isDeepDive: false, description: "Pillars of rock separated from the headland.", concept: "Waves continuously hit and erode the headland, breaking it down into a cave, an arch, and finally a stack. This is constant **breaking down (erosion)**.", processIcon: "💥🌊 Wave Breaking" },
+        { name: "Kettle", icon: "💧", type: "Destructive", isDeepDive: false, description: "A small pond or lake resembling a crater.", concept: "Formed when 'dead ice' melts, causing the surrounding outwash to **collapse** and leave a hole. The process is defined by the **collapse/removal** of support.", processIcon: "🕳️⬇️ Ice Collapse" },
+        { name: "Esker", icon: "〰️", type: "Constructive", isDeepDive: false, description: "A long, winding ridge of material left by a melting glacier.", concept: "Rivers *inside* the glacier deposit rocks and debris. When the glacier melts, this sediment is **added** to the land as a ridge. This is **Sediment Deposition**.", processIcon: "⬆️⛰️ Sediment Ridge" },
+        { name: "Moraine", icon: "🚧", type: "Constructive", isDeepDive: false, description: "A ridge of scraped dirt and rocks pushed by a glacier.", concept: "A glacier acts like a bulldozer, pushing material out of the way. This collection of **built-up** material is left behind when the glacier retreats. This is an **Addition** of land mass.", processIcon: "🧱💪 Glacial Push" },
+        { name: "Coastline", icon: "🏖️", type: "Constructive", isDeepDive: false, description: "The edge of the land where it meets the sea, often formed by sediment deposit.", concept: "While waves erode, coastlines often involve **Sediment Deposition** (like sand bars) or crustal movements that **build up** the land edge over time.", processIcon: "🏖️➕ Land Addition" },
+        { name: "Fold Mountain", icon: "📈", type: "Constructive", isDeepDive: false, description: "Mountains formed by the upward folding of the Earth's crust.", concept: "This is **Crustal Deformation**, a powerful geological process that **pushes up and builds** land features. This is the definition of a constructive process.", processIcon: "⏫🗜️ Crustal Uplift" },
 
-        // Constructive Icons:
-        { name: "Esker", icon: "〰️", type: "Constructive", description: "A long, winding ridge of material left by a melting glacier.", concept: "Rivers *inside* the glacier deposit rocks and debris. When the glacier melts, this sediment is **added** to the land as a ridge. This is **Sediment Deposition**.", processIcon: "⬆️⛰️ Sediment Ridge" },
-        { name: "Moraine", icon: "🚧", type: "Constructive", description: "A ridge of scraped dirt and rocks pushed by a glacier.", concept: "A glacier acts like a bulldozer, pushing material out of the way. This collection of **built-up** material is left behind when the glacier retreats. This is an **Addition** of land mass.", processIcon: "🧱💪 Glacial Push" },
-        { name: "Coastline", icon: "🏖️", type: "Constructive", description: "The edge of the land where it meets the sea, often formed by sediment deposit.", concept: "While waves erode, coastlines often involve **Sediment Deposition** (like sand bars) or crustal movements that **build up** the land edge over time.", processIcon: "🏖️➕ Land Addition" },
-        { name: "Fold Mountain", icon: "📈", type: "Constructive", description: "Mountains formed by the upward folding of the Earth's crust.", concept: "This is **Crustal Deformation**, a powerful geological process that **pushes up and builds** land features. This is the definition of a constructive process.", processIcon: "⏫🗜️ Crustal Uplift" }
+        // Level 2 Deep Dive Processes (4 cards - focus on mechanism)
+        { name: "Freeze-Thaw", icon: "🥶🔨", type: "Destructive", isDeepDive: true, description: "The physical breaking of rock as frozen water expands in cracks.", concept: "This is **Mechanical Weathering**. It breaks large rocks into smaller pieces physically, without changing the rock's substance.", processIcon: "🔨💔 Mechanical Weathering" },
+        { name: "Oxidation", icon: "🧪🎨", type: "Destructive", isDeepDive: true, description: "A process where rock minerals react with oxygen, causing a change in color and shape (like rust).", concept: "This is **Chemical Weathering**. It involves changing the substance of the rock at a molecular level.", processIcon: "⚛️🔄 Chemical Weathering" },
+        { name: "Root Wedging", icon: "🌳🔨", type: "Destructive", isDeepDive: true, description: "The growth of plant roots into rock cracks, expanding them and causing the rock to break apart.", concept: "This is also **Mechanical Weathering**. The force of the root is physical, leading to the physical break down of rock.", processIcon: "🌳🔨 Mechanical Weathering" },
+        { name: "Glaciation", icon: "🏔️🧊", type: "Destructive", isDeepDive: true, description: "The powerful movement of large masses of ice, scraping and carving the landscape.", concept: "This is a primary **Erosion** force. It is the movement of weathered rocks/debris, making it erosion, not just static weathering.", processIcon: "🧊➡️ Erosion Force" },
+
     ];
 
     let currentLandform = null;
     let landformsQueue = [];
     let score = 0;
     let totalCards = 0;
+    let isDeepDiveMode = false; // New state variable
 
     const currentCardContainer = document.getElementById('current-card-container');
     const constructiveZone = document.getElementById('constructive-zone');
@@ -376,6 +400,31 @@
     const startButton = document.getElementById('start-btn');
     const scoreBar = document.getElementById('score-bar');
     const feedbackIconDisplay = document.getElementById('feedback-icon-display');
+    const modeToggleButton = document.getElementById('mode-toggle');
+    const modeLabel = document.getElementById('mode-label');
+
+
+    // --- Mode Toggle Logic ---
+    function toggleDeepDiveMode() {
+        isDeepDiveMode = !isDeepDiveMode;
+        if (isDeepDiveMode) {
+            modeToggleButton.textContent = "Switch to Landform Mode (Level 1)";
+            modeToggleButton.classList.remove('mode-default');
+            modeToggleButton.classList.add('mode-deep');
+            modeLabel.textContent = "(Deep Dive Mode)";
+            modeLabel.classList.remove('text-blue-500');
+            modeLabel.classList.add('text-orange-600');
+        } else {
+            modeToggleButton.textContent = "Switch to Deep Dive Mode (Level 2)";
+            modeToggleButton.classList.remove('mode-deep');
+            modeToggleButton.classList.add('mode-default');
+            modeLabel.textContent = "(Landform Mode)";
+            modeLabel.classList.remove('text-orange-600');
+            modeLabel.classList.add('text-blue-500');
+        }
+        // Restart the game with the new mode
+        startGame(); 
+    }
 
     // --- Drag and Drop Logic ---
 
@@ -411,14 +460,19 @@
         constructiveRows.innerHTML = '';
         destructiveRows.innerHTML = '';
 
-        landformsData.forEach(lf => {
+        // Filter and sort for Cheatsheet
+        const cheatsheetData = [...landformsData].sort((a, b) => a.name.localeCompare(b.name));
+
+        cheatsheetData.forEach(lf => {
             const [processIconEmoji, processIconText] = lf.processIcon.split(/ (.+)/);
             
             const row = document.createElement('tr');
             row.className = lf.type === 'Constructive' ? 'constructive-row' : 'destructive-row';
             
+            const deepDiveMark = lf.isDeepDive ? '<span class="text-orange-500 font-bold mr-1">🟠</span>' : '';
+
             row.innerHTML = `
-                <td data-label="Landform"><strong>${lf.name}</strong></td>
+                <td data-label="Landform/Process"><strong>${deepDiveMark}${lf.name}</strong></td>
                 <td data-label="Icon">${lf.icon}</td>
                 <td data-label="Type">${lf.type}</td>
                 <td data-label="Process Icon"><strong>${processIconEmoji}</strong> ${processIconText}</td>
@@ -459,8 +513,12 @@
         startButton.style.display = 'none';
         
         // Setup initial state
-        shuffleArray(landformsData);
-        landformsQueue = [...landformsData];
+        const filteredData = isDeepDiveMode 
+            ? landformsData // Use all cards in deep dive mode
+            : landformsData.filter(lf => !lf.isDeepDive); // Only level 1 cards in default mode
+
+        shuffleArray(filteredData);
+        landformsQueue = filteredData;
         score = 0;
         totalCards = 0;
         
@@ -602,12 +660,14 @@
     destructiveZone.addEventListener('dragleave', removeHover);
     destructiveZone.addEventListener('drop', drop);
 
-    // Initial message
+    // Initial message and Cheatsheet generation
     window.onload = () => {
         document.getElementById('current-card-container').innerHTML = `<p class="text-gray-500">Press 'Start Game' to begin sorting landforms.</p>`;
+        generateCheatsheetTable(); // Pre-generate table data
     };
 
 </script>
 
 </body>
 </html>
+
