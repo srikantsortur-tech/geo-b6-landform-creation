@@ -147,7 +147,7 @@
             background-color: #10b981;
         }
         
-        /* Modal and Cheatsheet styles (unchanged) */
+        /* Modal and Cheatsheet styles (UNCHANGED) */
         #feedback-modal, #cheatsheet-modal {
             position: fixed;
             top: 0;
@@ -168,6 +168,9 @@
             width: 90%;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
             position: relative;
+            /* FIX: Added max-height and scrolling for long feedback */
+            max-height: 90vh; 
+            overflow-y: auto; 
         }
         .modal-content.correct { border-left: 8px solid #10b981; }
         .modal-content.incorrect { border-left: 8px solid #ef4444; }
@@ -387,7 +390,7 @@
     const submitBtn = document.getElementById('submit-btn');
     const startBtn = document.getElementById('start-btn');
     const feedbackModal = document.getElementById('feedback-modal');
-    // FIX: modalContent was not declared, causing ReferenceError in checkTimeline()
+    // FIX: modalContent was not declared previously, causing ReferenceError in checkTimeline()
     const modalContent = document.getElementById('modal-content'); 
     const scoreBarEl = document.getElementById('score-bar');
     const cheatsheetModal = document.getElementById('cheatsheet-modal');
@@ -774,3 +777,4 @@
 
 </body>
 </html>
+
